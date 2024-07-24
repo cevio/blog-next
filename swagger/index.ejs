@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="SwaggerUI" />
+  <link rel="shortcut icon" href="//img.alicdn.com/imgextra/i4/O1CN01Z5paLz1O0zuCC7osS_!!6000000001644-55-tps-83-82.svg"
+    type="image/x-icon">
+  <link rel="icon" type="image/svg+xml"
+    href="//img.alicdn.com/imgextra/i4/O1CN01Z5paLz1O0zuCC7osS_!!6000000001644-55-tps-83-82.svg">
+  <link rel="icon" type="image/png"
+    href="//img.alicdn.com/imgextra/i4/O1CN01XZe8pH1USpiUNT1QN_!!6000000002517-2-tps-114-114.png">
+  <link rel="apple-touch-icon"
+    href="//img.alicdn.com/imgextra/i4/O1CN01XZe8pH1USpiUNT1QN_!!6000000002517-2-tps-114-114.png">
+  <title><%=title%></title>
+  <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/swagger-ui/5.6.2/swagger-ui.min.css" />
+  <style>
+    body {
+      font-size: 14px;
+    }
+
+    .opblock-summary button {
+      background-color: transparent;
+      border: 0;
+      outline: none !important;
+    }
+
+    .opblock-summary button svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    .opblock-summary:hover .copy-to-clipboard {
+      display: none;
+    }
+
+    .swagger-ui .opblock .opblock-summary-description {
+      text-align: right;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="swagger-ui"></div>
+  <script src="https://cdn.bootcdn.net/ajax/libs/swagger-ui/5.6.2/swagger-ui-bundle.min.js" crossorigin></script>
+  <script>
+    window.onload = () => {
+      window.ui = SwaggerUIBundle({
+        url: '<%=api%>',
+        dom_id: '#swagger-ui',
+      });
+    };
+  </script>
+</body>
+
+</html>
