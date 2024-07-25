@@ -22,11 +22,6 @@ import { BlogUserEntity } from '../../entities/user.entity';
 @swagger.Parameter('body', 'body', swagger.ref('LoginForm'))
 @swagger.ResponseType('application/json')
 @swagger.Response(200, JSONErrorCatch.Wrap(t.Number(Date.now()).description('时间戳')))
-/**
- * 系统用户登录
- * 博客默认系统登录，通过账号密码登录系统。
- * POST:/-/login
- */
 export default class extends Controller {
   @Controller.Inject(UserService)
   private readonly service: UserService;

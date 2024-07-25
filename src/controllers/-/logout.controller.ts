@@ -15,11 +15,6 @@ import { LoginWare } from '../../middlewares/user.login';
 @swagger.Controller('退出登录', '当前登录的用户退出系统登录', 'user')
 @swagger.ResponseType('application/json')
 @swagger.Response(200, JSONErrorCatch.Wrap(t.Number(Date.now()).description('时间戳')))
-/**
- * 退出登录
- * 当前登录的用户退出系统登录
- * DELETE:/-/logout
- */
 export default class extends Controller {
   @Controller.Inject(CacheServer)
   private readonly cacheServer: CacheServer;
