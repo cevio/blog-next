@@ -23,6 +23,7 @@ export default class extends Controller {
     const account = ctx.user.account;
     const userAccountCacheKey = '/login/account/' + account;
     const token = await this.cacheServer.read(userAccountCacheKey);
+
     if (token) {
       const userTokenCacheKey = '/login/token/' + token;
       await this.cacheServer.remove(userTokenCacheKey);
