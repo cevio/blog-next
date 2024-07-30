@@ -21,4 +21,8 @@ export class UserService extends TypeORMService {
     }
     return this.rep.findOneBy(conditions);
   }
+
+  public create(account: string, password: string) {
+    return this.save(this.rep.create().add(account, password))
+  }
 }

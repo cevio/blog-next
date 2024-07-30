@@ -12,6 +12,8 @@ export interface Lang {
     forbiden: string,
     notlogin: string,
     notadmin: string,
+    unregist: string,
+    exists: string,
   }
 }
 

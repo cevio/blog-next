@@ -1,6 +1,6 @@
 import t from '@braken/json-schema';
-import { DataBaseTransactionWare } from '@braken/http-plugin-typeorm';
 
+import { DataBaseTransactionWare } from '@braken/http-plugin-typeorm';
 import { Controller } from "@braken/http";
 import { Context } from "koa";
 import { swagger } from "../../swagger";
@@ -12,11 +12,11 @@ import { Exception } from '../../exception';
 import { UserCache, UserContextState } from '../../caches/user.cache';
 import { UserVariable } from '../../variables/user.var';
 import CacheServer from '@braken/cache';
-import { BlogUserEntity } from '../../entities/user.entity';
+import { WebSiteClosedWare } from '../../middlewares/close';
 
 @Controller.Injectable
 @Controller.Method('POST')
-@Controller.Middleware(JSONErrorCatch, HttpBodyWare, DataBaseTransactionWare)
+@Controller.Middleware(JSONErrorCatch, WebSiteClosedWare, HttpBodyWare, DataBaseTransactionWare)
 @swagger.Controller('系统用户登录', '博客默认系统登录，通过账号密码登录系统。', 'user')
 @swagger.ContentType('application/json')
 @swagger.Parameter('body', 'body', swagger.ref('LoginForm'))

@@ -10,5 +10,7 @@ export const zhcn: Lang = {
     forbiden: '用户已封禁',
     notlogin: '用户未登录',
     notadmin: '用户权限不足',
+    unregist: '不允许注册',
+    exists: '用户已存在'
   }
 }
