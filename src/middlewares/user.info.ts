@@ -1,20 +1,16 @@
 import CacheServer from "@braken/cache";
 import { Middleware } from "@braken/http";
 import { Next, Context } from "koa";
-import { BlogUserEntity } from "../entities/user.entity";
-import { UserService } from "../services/user.service";
+import { UserContextState } from "../caches/user.cache";
 
 declare module 'koa' {
   interface BaseContext {
-    user: BlogUserEntity,
+    user: UserContextState,
   }
 }
 
 @Middleware.Injectable
 export class AuthorizeWare extends Middleware {
-  @Middleware.Inject(UserService)
-  private readonly service: UserService;
-
   @Middleware.Inject(CacheServer)
   private readonly cache: CacheServer;
 
@@ -24,13 +20,7 @@ export class AuthorizeWare extends Middleware {
     if (!token) return await next();
 
     const userTokenCacheKey = '/login/token/' + token;
-    const account = await this.cache.read(userTokenCacheKey);
-    if (account) {
-      const user = await this.service.getOneByAccount(account);
-      if (user) {
-        ctx.user = user;
-      }
-    }
+    ctx.user = await this.cache.read(userTokenCacheKey);
 
     await next();
   }

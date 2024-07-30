@@ -1,6 +1,6 @@
-import { Application } from "@braken/application";
 import CacheServer from "@braken/cache";
-import { JSONSchema, JSONSchemaObject } from "@braken/json-schema";
+import { Application } from "@braken/application";
+import { JSONSchemaObject } from "@braken/json-schema";
 
 @Application.Injectable
 export abstract class Variable<T extends object = any> extends Application {

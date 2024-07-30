@@ -1,22 +1,22 @@
 import t from '@braken/json-schema';
-import HttpTypeormPlugin from '@braken/http-plugin-typeorm';
+import { DataBaseTransactionWare } from '@braken/http-plugin-typeorm';
 
 import { Controller } from "@braken/http";
 import { Context } from "koa";
 import { swagger } from "../../swagger";
 import { JSONErrorCatch } from '../../middlewares/json';
-import { HttpBodyMiddleware } from '../../middlewares/body';
+import { HttpBodyWare } from '../../middlewares/body';
 import { UserService } from '../../services/user.service';
 import { Language } from '../../apps/language.app';
 import { Exception } from '../../exception';
-import { UserCache } from '../../caches/user.cache';
+import { UserCache, UserContextState } from '../../caches/user.cache';
 import { UserVariable } from '../../variables/user.var';
 import CacheServer from '@braken/cache';
 import { BlogUserEntity } from '../../entities/user.entity';
 
 @Controller.Injectable
 @Controller.Method('POST')
-@Controller.Middleware(JSONErrorCatch, HttpBodyMiddleware, HttpTypeormPlugin.Middleware(true))
+@Controller.Middleware(JSONErrorCatch, HttpBodyWare, DataBaseTransactionWare)
 @swagger.Controller('系统用户登录', '博客默认系统登录，通过账号密码登录系统。', 'user')
 @swagger.ContentType('application/json')
 @swagger.Parameter('body', 'body', swagger.ref('LoginForm'))
@@ -60,11 +60,11 @@ export default class extends Controller {
     );
 
     // 缓存
-    await this.cache.$write({
+    const _user = await this.cache.$write({
       account: user.account,
     });
 
-    const expire = await this.toCache(user);
+    const expire = await this.toCache(_user);
     const domain = new URL(ctx.headers.host);
 
     // 写入 cookie
@@ -85,7 +85,7 @@ export default class extends Controller {
    * @param user 
    * @returns 
    */
-  private async toCache(user: BlogUserEntity) {
+  private async toCache(user: UserContextState) {
     const maxAgeSec = this.variable.get('loginExpire') * 24 * 60 * 60 * 1000;
     const userTokenCacheKey = '/login/token/' + user.token;
     const userAccountCacheKey = '/login/account/' + user.account;
@@ -97,7 +97,7 @@ export default class extends Controller {
     }
 
     // 写入新缓存
-    await this.cacheServer.write(userTokenCacheKey, user.account, maxAgeSec);
+    await this.cacheServer.write(userTokenCacheKey, user, maxAgeSec);
     await this.cacheServer.write(userAccountCacheKey, user.token, maxAgeSec);
 
     return Date.now() + maxAgeSec;

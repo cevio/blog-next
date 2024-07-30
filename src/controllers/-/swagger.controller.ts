@@ -2,7 +2,7 @@ import t from '@braken/json-schema';
 import { Controller } from "@braken/http";
 import { Context } from "koa";
 import { swagger } from "../../swagger";
-import { JSONErrorCatch, PlainErrorCatch } from '../../middlewares/json';
+import { PlainErrorCatch } from '../../middlewares/json';
 import { SwaggerUseable } from '../../middlewares/swagger';
 
 @Controller.Injectable

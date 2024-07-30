@@ -1,17 +1,14 @@
 import t from '@braken/json-schema';
 import CacheServer from '@braken/cache';
-import HttpTypeormPlugin from '@braken/http-plugin-typeorm';
-
 import { Controller } from "@braken/http";
 import { Context } from "koa";
 import { swagger } from "../../swagger";
 import { JSONErrorCatch } from '../../middlewares/json';
-import { AuthorizeWare } from '../../middlewares/user.info';
 import { LoginWare } from '../../middlewares/user.login';
 
 @Controller.Injectable
 @Controller.Method('DELETE')
-@Controller.Middleware(JSONErrorCatch, HttpTypeormPlugin.Middleware(), AuthorizeWare, LoginWare)
+@Controller.Middleware(JSONErrorCatch, LoginWare)
 @swagger.Controller('退出登录', '当前登录的用户退出系统登录', 'user')
 @swagger.ResponseType('application/json')
 @swagger.Response(200, JSONErrorCatch.Wrap(t.Number(Date.now()).description('时间戳')))

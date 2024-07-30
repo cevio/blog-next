@@ -8,8 +8,13 @@ interface Params {
   account: string
 }
 
+export type UserContextState = Pick<BlogUserEntity, 'id' |
+  'account' | 'admin' | 'avatar' | 'email' | 'forbiden' |
+  'gmt_create' | 'gmt_modified' | 'nickname' | 'password' |
+  'salt' | 'thirdpart' | 'thirdpart_node_module' | 'token' | 'website'>
+
 @Cache.Injectable
-export class UserCache extends Cache<BlogUserEntity, Params> {
+export class UserCache extends Cache<UserContextState, Params> {
   @Cache.Inject(UserService)
   public readonly service: UserService;
 
