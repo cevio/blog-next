@@ -27,9 +27,9 @@
   "dependencies": {
     "@braken/application": "^1.1.0",
     "@braken/bootstrap": "^1.1.0",
-    "@braken/cache": "^1.1.2",
-    "@braken/cache-file": "^1.1.2",
-    "@braken/cache-ioredis": "^1.1.2",
+    "@braken/cache": "^1.1.7",
+    "@braken/cache-file": "^1.1.7",
+    "@braken/cache-ioredis": "^1.1.7",
     "@braken/http": "^1.1.4",
     "@braken/http-plugin-typeorm": "^1.1.6",
     "@braken/http-swagger": "^1.1.4",

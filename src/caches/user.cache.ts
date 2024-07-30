@@ -14,6 +14,7 @@ export type UserContextState = Pick<BlogUserEntity, 'id' |
   'salt' | 'thirdpart' | 'thirdpart_node_module' | 'token' | 'website'>
 
 @Cache.Injectable
+@Cache.Path('/user/:account')
 export class UserCache extends Cache<UserContextState, Params> {
   @Cache.Inject(UserService)
   public readonly service: UserService;

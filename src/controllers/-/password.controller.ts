@@ -13,13 +13,14 @@ import { Exception } from '../../exception';
 import { UserCache, UserContextState } from '../../caches/user.cache';
 import { UserVariable } from '../../variables/user.var';
 import { WebSiteClosedWare } from '../../middlewares/close';
+import { LoginWare } from '../../middlewares/user.login';
 
 @Controller.Injectable
 @Controller.Method('POST')
-@Controller.Middleware(JSONErrorCatch, WebSiteClosedWare, HttpBodyWare, DataBaseTransactionWare)
-@swagger.Controller('系统用户登录', '博客默认系统登录，通过账号密码登录系统。', 'user')
+@Controller.Middleware(JSONErrorCatch, WebSiteClosedWare, HttpBodyWare, LoginWare, DataBaseTransactionWare)
+@swagger.Controller('修改密码', '修改登录用户的密码', 'user')
 @swagger.ContentType('application/json')
-@swagger.Parameter('body', 'body', swagger.ref('LoginForm'))
+@swagger.Parameter('body', 'body', swagger.ref('ResetPassword'))
 @swagger.ResponseType('application/json')
 @swagger.Response(200, JSONErrorCatch.Wrap(t.Number(Date.now()).description('时间戳')))
 export default class extends Controller {
@@ -40,29 +41,18 @@ export default class extends Controller {
 
   public async response(ctx: Context) {
     const body = ctx.request.body;
+    let user = await this.service.getOneByAccount(ctx.user.account);
 
-    // 用户是否存在
-    let user = await this.service.getOneByAccount(body.account);
     if (!user) {
       throw new Exception(404, this.lang.get('user.notfound'));
     }
 
-    // 判断密码是否正确
-    if (!user.checkPassword(body.password)) {
+    if (!user.checkPassword(body.oldPassword)) {
       throw new Exception(410, this.lang.get('user.pwderror'));
     }
 
-    // 更新数据库
-    await this.service.save(
-      user
-        .updatePassword(body.password)
-        .updateToken()
-    );
-
-    // 缓存
-    const _user = await this.cache.$write({
-      account: user.account,
-    });
+    user = await this.service.save(user.updatePassword(body.newPassword).updateToken());
+    const _user = await this.cache.$write({ account: user.account });
 
     const expire = await this.toCache(_user);
     const domain = new URL('http://' + ctx.headers.host);

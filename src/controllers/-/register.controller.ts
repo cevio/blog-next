@@ -53,7 +53,7 @@ export default class extends Controller {
     const _user = await this.cache.$write({ account: user.account });
 
     const expire = await this.toCache(_user);
-    const domain = new URL(ctx.headers.host);
+    const domain = new URL('http://' + ctx.headers.host);
 
     ctx.cookies.set('authorization', user.token, {
       expires: new Date(expire),
@@ -67,12 +67,12 @@ export default class extends Controller {
   }
 
   private async toCache(user: UserContextState) {
-    const maxAgeSec = this.user.get('loginExpire') * 24 * 60 * 60 * 1000;
+    const maxAgeSec = Date.now() + this.user.get('loginExpire') * 24 * 60 * 60 * 1000;
     const userTokenCacheKey = '/login/token/' + user.token;
 
     // 写入新缓存
     await this.cacheServer.write(userTokenCacheKey, user, maxAgeSec);
 
-    return Date.now() + maxAgeSec;
+    return maxAgeSec;
   }
 }
