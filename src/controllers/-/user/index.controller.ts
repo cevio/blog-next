@@ -25,11 +25,15 @@ export default class extends Controller {
   private readonly service: UserService;
 
   public async response(ctx: Context) {
-    const [data, total] = await this.service.query(Number(ctx.query.page), Number(ctx.query.size || 10), {
-      keyword: ctx.query.keyword as string,
-      forbiden: Boolean(Number(ctx.query.forbiden)),
-      admin: Boolean(Number(ctx.query.admin)),
-    })
+    const [data, total] = await this.service.query(
+      Number(ctx.query.page),
+      Number(ctx.query.size || 10),
+      {
+        keyword: ctx.query.keyword as string,
+        forbiden: Boolean(Number(ctx.query.forbiden)),
+        admin: Boolean(Number(ctx.query.admin)),
+      }
+    )
     ctx.set('x-total', total.toString());
     ctx.body = data;
   }
