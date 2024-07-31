@@ -22,7 +22,48 @@ export class UserService extends TypeORMService {
     return this.rep.findOneBy(conditions);
   }
 
+  public getOneById(id: number) {
+    return this.rep.findOneBy({ id });
+  }
+
   public create(account: string, password: string) {
     return this.save(this.rep.create().add(account, password))
+  }
+
+  public async query(page: number, size: number, options: {
+    keyword?: string,
+    forbiden?: boolean,
+    admin?: boolean
+  } = {}) {
+    const sql = this.rep.createQueryBuilder('u')
+      .where('1=1')
+      .orderBy({
+        'u.gmt_create': 'DESC',
+        'u.gmt_modified': 'DESC',
+      });
+
+    if (options.keyword) {
+      sql.andWhere('u.account LIKE :keyword OR u.nickname LIKE :keyword', {
+        keyword: '%' + options.keyword + '%'
+      });
+    }
+
+    if (options.forbiden) {
+      sql.andWhere('u.forbiden=:forbiden', {
+        forbiden: true
+      });
+    }
+
+    if (options.admin) {
+      sql.andWhere('u.admin=:admin', {
+        admin: true,
+      })
+    }
+
+    if (size) {
+      sql.offset((page - 1) * size).limit(size);
+    }
+
+    return await sql.getManyAndCount();
   }
 }

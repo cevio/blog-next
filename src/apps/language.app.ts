@@ -14,6 +14,7 @@ export interface Lang {
     notadmin: string,
     unregist: string,
     exists: string,
+    unaccept: string,
   }
 }
 

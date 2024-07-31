@@ -1,5 +1,4 @@
 import t from '@braken/json-schema';
-import CacheServer from '@braken/cache';
 
 import { Controller } from "@braken/http";
 import { Context } from "koa";
@@ -12,7 +11,8 @@ import { UserVariable } from '../../variables/user.var';
 import { Exception } from '../../exception';
 import { Language } from '../../apps/language.app';
 import { UserService } from '../../services/user.service';
-import { UserCache, UserContextState } from '../../caches/user.cache';
+import { UserCache } from '../../caches/user.cache';
+import { LoginService } from '../../services/login.service';
 
 @Controller.Injectable
 @Controller.Method('POST')
@@ -35,8 +35,8 @@ export default class extends Controller {
   @Controller.Inject(UserCache)
   private readonly cache: UserCache;
 
-  @Controller.Inject(CacheServer)
-  private readonly cacheServer: CacheServer;
+  @Controller.Inject(LoginService)
+  private readonly login: LoginService;
 
   public async response(ctx: Context) {
     if (!this.user.get('registable')) {
@@ -50,9 +50,9 @@ export default class extends Controller {
     }
 
     user = await this.service.create(body.account, body.password);
-    const _user = await this.cache.$write({ account: user.account });
+    const _user = await this.cache.$write({ id: user.id.toString() });
 
-    const expire = await this.toCache(_user);
+    const expire = await this.login.createCache(_user);
     const domain = new URL('http://' + ctx.headers.host);
 
     ctx.cookies.set('authorization', user.token, {
@@ -64,15 +64,5 @@ export default class extends Controller {
     })
 
     ctx.body = Date.now();
-  }
-
-  private async toCache(user: UserContextState) {
-    const maxAgeSec = Date.now() + this.user.get('loginExpire') * 24 * 60 * 60 * 1000;
-    const userTokenCacheKey = '/login/token/' + user.token;
-
-    // 写入新缓存
-    await this.cacheServer.write(userTokenCacheKey, user, maxAgeSec);
-
-    return maxAgeSec;
   }
 }

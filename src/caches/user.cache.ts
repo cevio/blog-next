@@ -5,7 +5,7 @@ import { Exception } from '../exception';
 import { Language } from '../apps/language.app';
 
 interface Params {
-  account: string
+  id: string
 }
 
 export type UserContextState = Pick<BlogUserEntity, 'id' |
@@ -14,7 +14,7 @@ export type UserContextState = Pick<BlogUserEntity, 'id' |
   'salt' | 'thirdpart' | 'thirdpart_node_module' | 'token' | 'website'>
 
 @Cache.Injectable
-@Cache.Path('/user/:account')
+@Cache.Path('/user/:id')
 export class UserCache extends Cache<UserContextState, Params> {
   @Cache.Inject(UserService)
   public readonly service: UserService;
@@ -23,7 +23,7 @@ export class UserCache extends Cache<UserContextState, Params> {
   private readonly lang: Language;
 
   public async execute(params: Params) {
-    const user = await this.service.getOneByAccount(params.account);
+    const user = await this.service.getOneById(Number(params.id));
     if (!user) throw new Exception(404, this.lang.get('user.notfound'));
     return {
       value: user,

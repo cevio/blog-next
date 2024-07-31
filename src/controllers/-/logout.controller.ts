@@ -1,11 +1,11 @@
 import t from '@braken/json-schema';
-import CacheServer from '@braken/cache';
 
 import { Controller } from "@braken/http";
 import { Context } from "koa";
 import { swagger } from "../../swagger";
 import { JSONErrorCatch } from '../../middlewares/json';
 import { LoginWare } from '../../middlewares/user.login';
+import { LoginService } from '../../services/login.service';
 
 @Controller.Injectable
 @Controller.Method('DELETE')
@@ -14,21 +14,12 @@ import { LoginWare } from '../../middlewares/user.login';
 @swagger.ResponseType('application/json')
 @swagger.Response(200, JSONErrorCatch.Wrap(t.Number(Date.now()).description('时间戳')))
 export default class extends Controller {
-  @Controller.Inject(CacheServer)
-  private readonly cacheServer: CacheServer;
+  @Controller.Inject(LoginService)
+  private readonly login: LoginService;
 
   public async response(ctx: Context) {
-    const account = ctx.user.account;
-    const userAccountCacheKey = '/login/account/' + account;
-    const token = await this.cacheServer.read(userAccountCacheKey);
-
-    if (token) {
-      const userTokenCacheKey = '/login/token/' + token;
-      await this.cacheServer.remove(userTokenCacheKey);
-      await this.cacheServer.remove(userAccountCacheKey);
-    }
-
     const domain = new URL('http://' + ctx.headers.host);
+    await this.login.removeCache(ctx.user.id);
     ctx.cookies.set('authorization', '', {
       expires: new Date(0),
       signed: true,

@@ -1,5 +1,4 @@
 import t from '@braken/json-schema';
-import CacheServer from '@braken/cache';
 
 import { DataBaseTransactionWare } from '@braken/http-plugin-typeorm';
 import { Controller } from "@braken/http";
@@ -10,10 +9,10 @@ import { HttpBodyWare } from '../../middlewares/body';
 import { UserService } from '../../services/user.service';
 import { Language } from '../../apps/language.app';
 import { Exception } from '../../exception';
-import { UserCache, UserContextState } from '../../caches/user.cache';
-import { UserVariable } from '../../variables/user.var';
+import { UserCache } from '../../caches/user.cache';
 import { WebSiteClosedWare } from '../../middlewares/close';
 import { LoginWare } from '../../middlewares/user.login';
+import { LoginService } from '../../services/login.service';
 
 @Controller.Injectable
 @Controller.Method('POST')
@@ -33,11 +32,8 @@ export default class extends Controller {
   @Controller.Inject(UserCache)
   private readonly cache: UserCache;
 
-  @Controller.Inject(CacheServer)
-  private readonly cacheServer: CacheServer;
-
-  @Controller.Inject(UserVariable)
-  private readonly variable: UserVariable;
+  @Controller.Inject(LoginService)
+  private readonly login: LoginService;
 
   public async response(ctx: Context) {
     const body = ctx.request.body;
@@ -52,9 +48,9 @@ export default class extends Controller {
     }
 
     user = await this.service.save(user.updatePassword(body.newPassword).updateToken());
-    const _user = await this.cache.$write({ account: user.account });
+    const _user = await this.cache.$write({ id: user.id.toString() });
 
-    const expire = await this.toCache(_user);
+    const expire = await this.login.updateCache(_user);
     const domain = new URL('http://' + ctx.headers.host);
 
     // 写入 cookie
@@ -67,29 +63,5 @@ export default class extends Controller {
     })
 
     ctx.body = Date.now();
-  }
-
-  /**
-   * 保存至缓存中
-   * 可以通过用户中间件鉴别登录状态
-   * @param user 
-   * @returns 
-   */
-  private async toCache(user: UserContextState) {
-    const maxAgeSec = Date.now() + this.variable.get('loginExpire') * 24 * 60 * 60 * 1000;
-    const userTokenCacheKey = '/login/token/' + user.token;
-    const userAccountCacheKey = '/login/account/' + user.account;
-
-    // 清理旧缓存
-    const token = await this.cacheServer.read(userAccountCacheKey);
-    if (token) {
-      await this.cacheServer.remove('/login/token/' + token);
-    }
-
-    // 写入新缓存
-    await this.cacheServer.write(userTokenCacheKey, user, maxAgeSec);
-    await this.cacheServer.write(userAccountCacheKey, user.token, maxAgeSec);
-
-    return maxAgeSec;
   }
 }
