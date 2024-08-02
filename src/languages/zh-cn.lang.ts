@@ -1,6 +1,6 @@
-import { Lang } from "./apps/language.app";
+import { Lang } from "./types";
 
-export const zhcn: Lang = {
+const zhcn: Lang = {
   swagger: {
     unsupport: '本站未开启SwaggerApi的浏览设置，请联系管理员处理！',
   },
@@ -15,3 +15,5 @@ export const zhcn: Lang = {
     unaccept: '系统不接受此操作'
   }
 }
+
+export default zhcn;

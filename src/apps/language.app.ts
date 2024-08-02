@@ -1,22 +1,9 @@
 import i18next, { Resource } from 'i18next';
 import { Application } from "@braken/application";
 import { NestedKeys } from '../types';
-
-export interface Lang {
-  swagger: {
-    unsupport: string,
-  },
-  user: {
-    notfound: string,
-    pwderror: string,
-    forbiden: string,
-    notlogin: string,
-    notadmin: string,
-    unregist: string,
-    exists: string,
-    unaccept: string,
-  }
-}
+import { Lang } from '../languages/types';
+import { glob } from 'glob';
+import { resolve } from 'node:path';
 
 @Application.Injectable
 export class Language extends Application {
@@ -24,7 +11,7 @@ export class Language extends Application {
   public readonly i18n = i18next;
   public initialize() { }
 
-  public async init() {
+  public async init(lang: string) {
     const resources: Record<string, { translation: Lang }> = {};
     for (const [key, value] of this.langs.entries()) {
       resources[key] = {
@@ -32,7 +19,7 @@ export class Language extends Application {
       }
     }
     await i18next.init({
-      lng: 'zhcn',
+      lng: lang,
       debug: false,
       resources: resources,
     });
@@ -45,5 +32,19 @@ export class Language extends Application {
 
   public get(key: NestedKeys<Lang> | NestedKeys<Lang>[]) {
     return this.i18n.t(key);
+  }
+
+  public async load(directory: string) {
+    const files = await glob(`**/*.lang.{ts,js}`, { cwd: directory });
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      const path = file.substring(0, file.length - 8);
+      const lang: Lang = (await import(resolve(directory, file))).default;
+      this.set(path, lang);
+    }
+  }
+
+  public names() {
+    return Array.from(this.langs.keys());
   }
 }

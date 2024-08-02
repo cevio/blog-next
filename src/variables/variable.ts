@@ -5,7 +5,7 @@ import { JSONSchemaObject } from "@braken/json-schema";
 @Application.Injectable
 export abstract class Variable<T extends object = any> extends Application {
   public abstract namespace: string;
-  public abstract schema: JSONSchemaObject<'object'>;
+  public abstract schema(): JSONSchemaObject<'object'> | Promise<JSONSchemaObject<'object'>>;
   public readonly state = new Map<keyof T, any>();
 
   @Application.Inject(CacheServer)
@@ -16,7 +16,7 @@ export abstract class Variable<T extends object = any> extends Application {
   }
 
   public async initialize() {
-    const data = this.toSchema();
+    const data = await this.toSchema();
     // @ts-ignore
     const properties = data.properties;
     for (const key in properties) {
@@ -33,8 +33,9 @@ export abstract class Variable<T extends object = any> extends Application {
     }
   }
 
-  public toSchema() {
-    return this.schema.toJSON();
+  public async toSchema() {
+    const schema = await Promise.resolve(this.schema());
+    return schema.toJSON();
   }
 
   public get<U extends keyof T>(key: U): T[U] {

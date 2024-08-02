@@ -20,17 +20,13 @@ import { BlogAttachmentEntity } from './entities/attachment.entity';
 import { BlogMediaCommentEntity } from './entities/media.comment.entity';
 import { BlogVisitorEntity } from './entities/visitor.entity';
 import { Language } from './apps/language.app';
-import { zhcn } from './i18n';
 import { UserVariable } from './variables/user.var';
+import { SystemVariable } from './variables/system.var';
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url));
+const __language = resolve(__dirname, 'languages');
 
 export default (props: BlogProps) => BootStrap(async (ctx, logger) => {
-  // 语言包
-  const t = await ctx.use(Language);
-  t.set('zhcn', zhcn);
-  await t.init();
-
   /**
    * 缓存模块
    * 支持文件缓存和 redis 缓存
@@ -53,6 +49,12 @@ export default (props: BlogProps) => BootStrap(async (ctx, logger) => {
   Cache.set(CacheAccepts);
   await ctx.use(Cache);
   await ctx.use(UserVariable);
+
+  // 语言包
+  const language = await ctx.use(Language);
+  const systeVars = await ctx.use(SystemVariable);
+  await language.load(__language);
+  await language.init(systeVars.get('language'));
 
   /**
    * 数据库连接模块
