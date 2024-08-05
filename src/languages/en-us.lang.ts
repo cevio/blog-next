@@ -13,6 +13,9 @@ const zhcn: Lang = {
     unregist: 'Registration not allowed',
     exists: 'User already exists',
     unaccept: 'The system does not accept this operation'
+  },
+  category: {
+    notfound: 'Category does not exist'
   }
 }
 

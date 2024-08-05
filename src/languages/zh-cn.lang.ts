@@ -13,6 +13,9 @@ const zhcn: Lang = {
     unregist: '不允许注册',
     exists: '用户已存在',
     unaccept: '系统不接受此操作'
+  },
+  category: {
+    notfound: '分类不存在'
   }
 }
 

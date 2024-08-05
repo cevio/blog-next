@@ -11,5 +11,8 @@ export interface Lang {
     unregist: string,
     exists: string,
     unaccept: string,
+  },
+  category: {
+    notfound: string,
   }
 }
