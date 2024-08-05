@@ -20,13 +20,24 @@ import { BlogAttachmentEntity } from './entities/attachment.entity';
 import { BlogMediaCommentEntity } from './entities/media.comment.entity';
 import { BlogVisitorEntity } from './entities/visitor.entity';
 import { Language } from './apps/language.app';
-import { UserVariable } from './variables/user.var';
 import { SystemVariable } from './variables/system.var';
+import { Plugin } from './apps/plugin.app';
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url));
 const __language = resolve(__dirname, 'languages');
 
-export default (props: BlogProps) => BootStrap(async (ctx, logger) => {
+export const ORMS = new Set([
+  BlogUserEntity,
+  BlogCategoryEntity,
+  BlogMediaEntity,
+  BlogMediaArticleEntity,
+  BlogMediaTagEntity,
+  BlogAttachmentEntity,
+  BlogMediaCommentEntity,
+  BlogVisitorEntity,
+]);
+
+export default (props: BlogProps, plugins: { new(...args: any[]): Plugin }[] = []) => BootStrap(async (ctx, logger) => {
   /**
    * 缓存模块
    * 支持文件缓存和 redis 缓存
@@ -45,16 +56,7 @@ export default (props: BlogProps) => BootStrap(async (ctx, logger) => {
     throw new TypeError('Unknow cache type');
   }
 
-  // 设置并开启缓存
   Cache.set(CacheAccepts);
-  await ctx.use(Cache);
-  await ctx.use(UserVariable);
-
-  // 语言包
-  const language = await ctx.use(Language);
-  const systeVars = await ctx.use(SystemVariable);
-  await language.load(__language);
-  await language.init(systeVars.get('language'));
 
   /**
    * 数据库连接模块
@@ -62,29 +64,19 @@ export default (props: BlogProps) => BootStrap(async (ctx, logger) => {
    */
   TypeORM.set({
     ...props.database,
-    entities: [
-      BlogUserEntity,
-      BlogCategoryEntity,
-      BlogMediaEntity,
-      BlogMediaArticleEntity,
-      BlogMediaTagEntity,
-      BlogAttachmentEntity,
-      BlogMediaCommentEntity,
-      BlogVisitorEntity,
-    ],
+    entities: Array.from(ORMS.values()),
     synchronize: true,
     logging: false,
   });
-  await ctx.use(TypeORM);
 
   /**
    * HTTP 服务模块
    * 支持 Controller 模型的路由懒加载
-   * 同时支持 swagger 数据 api 管理
    */
   Http.set(props.http);
   const http = await ctx.use(Http);
   http.use(HttpTypeormPlugin);
+
   // 自动加载 swagger 定义
   await swagger.autoLoadDefinitons(resolve(__dirname, 'definitions'));
   // 加载所有路由
@@ -93,6 +85,17 @@ export default (props: BlogProps) => BootStrap(async (ctx, logger) => {
   // swagger 缓存数据
   ctx.addCache('swagger:data', swagger.toJSON());
   ctx.addCache('swagger:html', await createSwaggerHtml());
+
+  // 加载插件
+  for (let i = 0; i < plugins.length; i++) {
+    const plugin = plugins[i];
+    await Promise.resolve(ctx.use(plugin));
+  }
+
+  const language = await ctx.use(Language);
+  const systeVars = await ctx.use(SystemVariable);
+  await language.load(__language);
+  await language.init(systeVars.get('language'));
 
   logger.http('127.0.0.1:' + props.http.port);
 })
