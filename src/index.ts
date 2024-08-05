@@ -24,7 +24,9 @@ import { SystemVariable } from './variables/system.var';
 import { Plugin } from './apps/plugin.app';
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url));
-const __language = resolve(__dirname, 'languages');
+const __languages = resolve(__dirname, 'languages');
+const __definitions = resolve(__dirname, 'definitions');
+const __controllers = resolve(__dirname, 'controllers');
 
 export const ORMS = new Set([
   BlogUserEntity,
@@ -77,25 +79,28 @@ export default (props: BlogProps, plugins: { new(...args: any[]): Plugin }[] = [
   const http = await ctx.use(Http);
   http.use(HttpTypeormPlugin);
 
-  // 自动加载 swagger 定义
-  await swagger.autoLoadDefinitons(resolve(__dirname, 'definitions'));
-  // 加载所有路由
-  await http.load(resolve(__dirname, 'controllers'));
+  // 自动加载系统 swagger 定义
+  await swagger.autoLoadDefinitons(__definitions);
 
-  // swagger 缓存数据
-  ctx.addCache('swagger:data', swagger.toJSON());
-  ctx.addCache('swagger:html', await createSwaggerHtml());
+  // 加载所有系统路由
+  await http.load(__controllers);
 
   // 加载插件
   for (let i = 0; i < plugins.length; i++) {
     const plugin = plugins[i];
-    await Promise.resolve(ctx.use(plugin));
+    await ctx.use(plugin);
   }
 
+  // 语言包
   const language = await ctx.use(Language);
   const systeVars = await ctx.use(SystemVariable);
-  await language.load(__language);
-  await language.init(systeVars.get('language'));
+  const lang = systeVars.get('language'); // 当前使用的语言包名称
+  await language.load(__languages);
+  await language.init(lang);
+
+  // swagger 缓存数据
+  ctx.addCache('swagger:data', swagger.toJSON());
+  ctx.addCache('swagger:html', await createSwaggerHtml());
 
   logger.http('127.0.0.1:' + props.http.port);
 })
