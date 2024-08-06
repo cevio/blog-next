@@ -12,7 +12,7 @@ export abstract class Plugin extends Application {
 
   public loadControllers(directory: string) {
     return this.http.load(directory, {
-      prefix: '/-/plugin/' + this.name,
+      prefix: '/-/plugin/' + encodeURIComponent(this.name),
     })
   }
 }
