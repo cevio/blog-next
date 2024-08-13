@@ -1,8 +1,6 @@
-import t from '@braken/json-schema';
-
 import { Controller } from "@braken/http";
 import { Context } from "koa";
-import { swagger } from "../swagger";
+import { swagger } from "@pjblog/blog";
 
 @Controller.Injectable
 @Controller.Method('GET')

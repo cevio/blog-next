@@ -1,3 +1,4 @@
+archive
 node_modules
 .idea
 bower_components
@@ -19,9 +20,7 @@ topics.json
 nicknames.json
 test.json
 lerna-debug.log
-pnpm-lock.yaml
 !templates/**/dist
-temp_data_schema
-test.mjs
+test.ts
 logs
 attachments

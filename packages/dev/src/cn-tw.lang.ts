@@ -1,4 +1,4 @@
-import { Lang } from "../languages/types";
+import { Lang } from "@pjblog/blog";
 
 const zhcn: Lang = {
   swagger: {

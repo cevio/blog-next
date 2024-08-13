@@ -1,49 +1,25 @@
 {
-  "name": "@pjblog/blog",
-  "version": "2.3.46",
+  "name": "pjblog",
+  "version": "1.0.0",
   "description": "PJBlog since 2014-preset, new Blog for writer",
-  "license": "MIT",
-  "type": "module",
-  "main": "dist/index.js",
-  "files": [
-    "dist",
-    "templates"
-  ],
+  "private": true,
   "scripts": {
-    "build": "rm -rf ./dist && tsc -d && fix-esm-import-path --preserve-import-type ./dist",
-    "dev": "node --loader ts-node/esm ./src/test.ts",
-    "pub": "npm run build && git add . && git commit -am 'update' && git push",
-    "banner": "node scripts/banner.cjs"
+    "versions": "node ./scripts/versions.mjs",
+    "create": "node scripts/create.mjs -trace-warnings",
+    "pub": "lerna run build && git add . && git commit -am 'update' && git push && lerna publish",
+    "init": "pnpm i",
+    "watch": "lerna watch -- lerna run build",
+    "dev": "node --loader ts-node/esm packages/dev/src/index.ts"
   },
   "devDependencies": {
-    "@types/ejs": "^3.1.5",
-    "@types/koa": "^2.15.0",
-    "@types/node": "^20.14.14",
-    "@types/randomstring": "^1.3.0",
-    "fix-esm-import-path": "^1.10.0",
+    "@types/fs-extra": "^11.0.4",
+    "@types/node": "^20.14.8",
+    "@types/npmlog": "^4.1.6",
+    "fs-extra": "^11.2.0",
+    "inquirer": "^9.2.23",
+    "lerna": "^7.4.2",
+    "npmlog": "^7.0.1",
     "ts-node": "^10.9.2",
-    "typescript": "^5.5.4"
-  },
-  "dependencies": {
-    "@braken/application": "^1.1.10",
-    "@braken/bootstrap": "^1.1.10",
-    "@braken/cache": "^1.1.10",
-    "@braken/cache-file": "^1.1.10",
-    "@braken/cache-ioredis": "^1.1.10",
-    "@braken/http": "^1.1.10",
-    "@braken/http-plugin-typeorm": "^1.1.10",
-    "@braken/http-swagger": "^1.1.10",
-    "@braken/injection": "^1.1.0",
-    "@braken/ioredis": "^1.1.10",
-    "@braken/json-schema": "^1.1.8",
-    "@braken/logger": "^1.1.10",
-    "@braken/typeorm": "^1.1.10",
-    "ejs": "^3.1.10",
-    "glob": "^11.0.0",
-    "i18next": "^23.12.2",
-    "koa": "^2.15.3",
-    "koa-body": "^6.0.1",
-    "randomstring": "^1.3.0",
-    "typeorm": "^0.3.20"
+    "typescript": "^5.5.2"
   }
 }

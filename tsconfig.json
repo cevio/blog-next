@@ -15,18 +15,13 @@
     "esModuleInterop": true,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
-    // "typeRoots": [
-    //   "src"
-    // ],
-    // "types": [
-    //   "env"
-    // ]
+    "declarationMap": true,
   },
   "exclude": [
     "node_modules/*"
   ],
   "include": [
-    "src"
+    "packages/*"
   ],
   "ts-node": {
     "esm": true,
