@@ -11,7 +11,8 @@ const __dirname = fileURLToPath(new URL('.', import.meta.url));
 export const swagger = new HttpSwagger({
   user: '用户中心',
   category: '分类管理',
-  configs: '设置'
+  configs: '设置',
+  control: '后台页面'
 })
 
 swagger.basePath = '/';

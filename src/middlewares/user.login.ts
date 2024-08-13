@@ -35,3 +35,40 @@ export class AdminWare extends Middleware {
     await next();
   }
 }
+
+@Middleware.Injectable
+@Middleware.Dependencies(AuthorizeWare)
+export class LoginControlWare extends Middleware {
+  @Middleware.Inject(Language)
+  private readonly lang: Language;
+
+  public async use(ctx: Context, next: Next) {
+    if (!ctx.url.startsWith('/control')) {
+      return await next();
+    }
+    if (!ctx.user) {
+      // 渲染登录
+      return;
+    }
+    if (ctx.user.forbiden) {
+      // 渲染禁止登录
+      return;
+    }
+    await next();
+  }
+}
+
+@Middleware.Injectable
+@Middleware.Dependencies(LoginControlWare)
+export class AdminControlWare extends Middleware {
+  @Middleware.Inject(Language)
+  private readonly lang: Language;
+
+  public async use(ctx: Context, next: Next) {
+    if (!ctx.user.admin) {
+      // 渲染禁止登录
+      return;
+    }
+    await next();
+  }
+}
